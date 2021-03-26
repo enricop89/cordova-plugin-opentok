@@ -1,23 +1,33 @@
 (function () {
   // properties
-  'use strict';
-  var fs = require('fs');
-  var path = require('path');
-  var spawnSync = require('child_process').spawnSync;
-  var INSTALLFLAGNAME = '.installed';
+  "use strict";
+  var fs = require("fs");
+  var path = require("path");
+  var spawnSync = require("child_process").spawnSync;
+  var INSTALLFLAGNAME = ".installed";
 
   // entry
   module.exports = {
-    install: install
+    install: install,
   };
 
   // install the node dependencies for this project
-  function install (context) {
+  function install(context) {
     // set properties
-    var q = context.requireCordovaModule('q');
+    var q = require("q");
     var async = new q.defer(); // eslint-disable-line
-    var installFlagLocation = path.join(context.opts.projectRoot, 'plugins', context.opts.plugin.id, INSTALLFLAGNAME);
-    var dependencies = require(path.join(context.opts.projectRoot, 'plugins', context.opts.plugin.id, 'package.json')).dependencies;
+    var installFlagLocation = path.join(
+      context.opts.projectRoot,
+      "plugins",
+      context.opts.plugin.id,
+      INSTALLFLAGNAME
+    );
+    var dependencies = require(path.join(
+      context.opts.projectRoot,
+      "plugins",
+      context.opts.plugin.id,
+      "package.json"
+    )).dependencies;
 
     // only run once
     if (getPackageInstalled(installFlagLocation)) return;
@@ -37,7 +47,7 @@
   }
 
   // installs the node modules via npm install one at a time
-  function installNodeModules (modules, pluginId, callback) {
+  function installNodeModules(modules, pluginId, callback) {
     // base case
     if (modules.length <= 0) {
       return callback();
@@ -45,10 +55,12 @@
 
     // install one at a time
     var module = modules.pop();
-    console.log('Installing node dependency ' + module);
+    console.log("Installing node dependency " + module);
 
-    var npm = (process.platform === "win32" ? "npm.cmd" : "npm");
-    var result = spawnSync(npm, ['install', '--production', module], { cwd: './plugins/' + pluginId });
+    var npm = process.platform === "win32" ? "npm.cmd" : "npm";
+    var result = spawnSync(npm, ["install", "--production", module], {
+      cwd: "./plugins/" + pluginId,
+    });
     if (result.error) {
       throw result.error;
     } else {
@@ -58,7 +70,7 @@
   }
 
   // checks to see which node modules need to be installed from package.json.dependencies
-  function getNodeModulesToInstall (dependencies) {
+  function getNodeModulesToInstall(dependencies) {
     var modules = [];
     for (var module in dependencies) {
       if (dependencies.hasOwnProperty(module)) {
@@ -69,11 +81,11 @@
         }
       }
     }
-    return modules
+    return modules;
   }
 
   // if the package has already been installed
-  function getPackageInstalled (installFlagLocation) {
+  function getPackageInstalled(installFlagLocation) {
     try {
       fs.readFileSync(installFlagLocation);
       return true;
@@ -83,7 +95,7 @@
   }
 
   // set that the package has been installed
-  function setPackageInstalled (installFlagLocation) {
-    fs.closeSync(fs.openSync(installFlagLocation, 'w'));
+  function setPackageInstalled(installFlagLocation) {
+    fs.closeSync(fs.openSync(installFlagLocation, "w"));
   }
 })();
