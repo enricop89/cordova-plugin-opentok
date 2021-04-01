@@ -14,7 +14,7 @@
   // install the node dependencies for this project
   function install(context) {
     // set properties
-    var q = require("q");
+    var q = require('q');
     var async = new q.defer(); // eslint-disable-line
     var installFlagLocation = path.join(
       context.opts.projectRoot,
